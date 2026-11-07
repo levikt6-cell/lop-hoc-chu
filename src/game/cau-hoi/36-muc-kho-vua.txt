@@ -1,0 +1,53 @@
+# Vượt chướng ngại vật - Mức vừa
+# Mỗi dòng: ĐÁP ÁN | gợi ý | độ khó (1 dễ, 2 vừa, 3 khó) | cách viết khác cũng tính đúng (cách nhau dấu phẩy)
+> Câu hỏi vừa sức, đòi hỏi suy luận và quan sát.
+QUẦN ĐẢO | Quần gì rộng lớn bao la nhất, nằm lênh đênh giữa biển khơi? | 2 | ĐẢO
+LÝ THÁI TỔ | Vị vua đặt nền móng dời kinh đô từ Hoa Lư về Thăng Long. | 2 | LÝ CÔNG UẨN
+NƯỚC | Chặt chẳng đứt, bứt chẳng rời, phơi nắng không khô, lửa đốt không cháy. | 2 | DÒNG NƯỚC
+HOSPITAL | Nơi bác sĩ khám chữa bệnh, tiếng Anh viết là gì? | 2 | BỆNH VIỆN
+90 | 15 nhân 6 bằng bao nhiêu? | 2 | CHÍN MƯƠI
+TRẦM CẢM | Tiếng lóng "trầm kẽm" của giới trẻ bắt nguồn từ bệnh tâm lý nào? | 2 | BỆNH TRẦM CẢM
+BÁNH CHƯNG | Chiếc bánh vuông vức gói bằng lá dong tượng trưng cho đất mẹ. | 2 | BÁNH CHƯNG XANH
+HÀ GIANG | Tỉnh địa đầu có cột cờ Lũng Cú nằm ở cực Bắc nước ta. | 2 | TỈNH HÀ GIANG
+12 | 144 chia cho 12 thì ra kết quả là mấy? | 2 | MƯỜI HAI
+LIBRARY | Nơi chứa hàng ngàn đầu sách trong trường, tiếng Anh gọi là gì? | 2 | THƯ VIỆN
+TAY TRÁI | Cầm được trên bàn tay phải nhưng không bao giờ tự cầm được. | 2 | BÀN TAY TRÁI
+NAM CAO | Nhà văn hiện thực gắn liền với tác phẩm Chí Phèo và Làng Vũ Đại. | 2 | NHÀ VĂN NAM CAO
+CUA XANH | Cuộc đua cua đỏ và cua xanh, con nào sống sót về đích? | 2 | CON CUA XANH
+FAMILY | Mái ấm thiêng liêng có bố và mẹ, tiếng Anh viết là gì? | 2 | GIA ĐÌNH
+91 | 13 nhân 7 ra bao nhiêu? | 2 | CHÍN MƯƠI MỐT
+TRẦN HƯNG ĐẠO | Vị danh tướng 3 lần đánh đuổi tan tác quân xâm lược Nguyên Mông. | 2 | TRẦN QUỐC TUẤN
+CHUỘT MICKEY | Chú chuột nổi tiếng của hãng hoạt hình Disney đi bằng hai chân. | 2 | MICKEY, CHUỘT MIKY
+CHÂU Á | Châu lục có diện tích và dân số lớn nhất trên bản đồ thế giới. | 2 | CHÂU LỤC Á
+50 | 250 chia cho 5 thì được bao nhiêu? | 2 | NĂM MƯƠI
+DOCTOR | Người mặc áo blouse trắng chữa bệnh cứu người, tiếng Anh gọi là gì? | 2 | BÁC SĨ
+TẤT CẢ LOÀI VỊT | Vịt nào bẩm sinh sinh ra đều đi bằng hai chân? | 2 | CON VỊT NÀO CŨNG ĐI HAI CHÂN, VỊT NÀO CŨNG VẬY
+VĂN CAO | Nhạc sĩ tài hoa sáng tác bản Tiến quân ca hào hùng. | 2 | NHẠC SĨ VĂN CAO
+BẠC | Kim loại có khả năng dẫn điện và dẫn nhiệt tốt nhất. | 2 | NGUYÊN TỐ BẠC
+64 | 16 nhân với 4 bằng bao nhiêu? | 2 | SÁU MƯƠI BỐN
+AIRPORT | Cảng hàng không nơi máy bay cất cánh và hạ cánh, tiếng Anh là gì? | 2 | SÂN BAY
+CHƠI CỜ | Càng chơi hăng say thì càng ra nước, đây là môn thể thao gì? | 2 | ĐÁNH CỜ, CỜ TƯỚNG, CỜ VUA
+FANSIPAN | Nóc nhà Đông Dương sừng sững giữa đất trời Tây Bắc. | 2 | PHAN XI PĂNG, ĐỈNH FANSIPAN
+115 | 200 mà trừ đi 85 thì còn bao nhiêu? | 2 | MỘT TRĂM MƯỜI LĂM
+TEACHER | Người gieo con chữ cho học sinh, tiếng Anh gọi là gì? | 2 | GIÁO VIÊN, CÔ GIÁO, THẦY GIÁO
+CÂY CHUỐI | Lá to tựa tai voi, thân hình mập mạp lại đẻ buồng quả to tướng. | 2 | CHUỐI
+PHÚ QUỐC | Hòn đảo ngọc có diện tích lớn nhất Việt Nam tại Kiên Giang. | 2 | ĐẢO PHÚ QUỐC
+KHÍ NITƠ | Chất khí vô hình chiếm tới 78% thể tích bầu khí quyển của Trái Đất. | 2 | NITƠ, N2
+51 | 17 nhân 3 ra bao nhiêu? | 2 | NĂM MƯƠI MỐT
+COMPUTER | Thiết bị bàn phím màn hình thông minh, tiếng Anh viết là gì? | 2 | MÁY TÍNH
+CON NGƯỜI | Sở thú bất ngờ bị cháy lớn, ai sẽ chạy hoảng loạn ra đầu tiên? | 2 | NGƯỜI
+NAM CAO | Tác giả viết nên tác phẩm rơi nước mắt về Lão Hạc và con Vàng. | 2 | NHÀ VĂN NAM CAO
+SAO THỦY | Hành tinh nhỏ nhắn nằm gần Mặt Trời nhất trong Thái Dương hệ. | 2 | MERCURY, THỦY TINH
+400 | 80 nhân 5 bằng bao nhiêu? | 2 | BỐN TRĂM
+WEATHER | Nắng mưa bão gió của đất trời, tiếng Anh gọi là gì? | 2 | THỜI TIẾT
+BẮP NGÔ | Bỏ vỏ ngoài nướng hạt bên trong, ăn xong lại vứt cùi đi. | 2 | NGÔ, TRÁI BẮP
+1954 | Năm chấn động địa cầu với chiến thắng lẫy lừng Điện Biên Phủ. | 2 | NĂM 1954
+XƯƠNG ĐÙI | Chiếc xương dài và chịu lực khỏe nhất trong khung xương người. | 2 | ĐÙI
+25 | 75 chia 3 bằng bao nhiêu? | 2 | HAI MƯƠI LĂM
+HOTEL | Nơi du khách thuê phòng ngủ nghỉ mát, tiếng Anh là gì? | 2 | KHÁCH SẠN
+CON LỪA | Tên gọi nghe như kẻ gian dối nhưng thực chất lại rất ngây ngô. | 2 | LỪA
+HỒ TÂY | Hồ nước tự nhiên có diện tích mênh mông lớn nhất giữa lòng Hà Nội. | 2 | TÂY HỒ
+MENDELEEV | Nhà bác học vĩ đại đã sắp xếp các nguyên tố vào bảng tuần hoàn. | 2 | MEN ĐÊ LÊ ÉP
+90 | 18 nhân 5 bằng bao nhiêu? | 2 | CHÍN MƯƠI
+RESTAURANT | Quán ăn uống sang trọng phục vụ thực khách, tiếng Anh gọi là gì? | 2 | NHÀ HÀNG
+NƯỚC | Dùng nó để cọ rửa mọi thứ, rửa xong chính nó lại thành nước thải. | 2 | NƯỚC SẠCH

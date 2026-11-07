@@ -3,14 +3,23 @@ import { emitTest, sendControl } from '../live/page';
 import type { StageView } from './useGame';
 import { GAME, shownTeacherName, type RoomCfg } from './config';
 
-// Nút riêng của Lớp Học Chữ ở trang điều khiển: điều khiển ván + giả lập phòng đông để thử bot
 const HO = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Vũ', 'Đặng', 'Bùi'];
 const TEN = ['Lan Anh', 'Minh Tuấn', 'Thu Trang', 'Quốc Bảo', 'Ngọc Hân', 'Gia Huy', 'Khánh Linh', 'Hải Yến', 'Đức Anh', 'Bảo Ngọc', 'Thanh Hà', 'Văn Toàn'];
 const CHAT = ['khó quá cô ơi', 'chữ gì vậy trời', 'hay quá', 'vào lớp', 'cô xinh quá', 'ủa là gì', '???', 'hihi'];
 const fake = (i: number) => ({ username: `hs${i}`, nickname: `${HO[i % HO.length]} ${TEN[i % TEN.length]}`, avatar: '' });
 const shuffleWord = (w: string) => [...w].sort(() => Math.random() - 0.5).join('');
 
-// Cài đặt lớp: tên + giọng cô giáo, chữ bảng đỏ, bật tắt 2 game lớn, ảnh nền. Đổi là trang stage đổi ngay, không cần tải lại
+const SAMPLE_TEMPLATE = `# Tên chủ đề mẫu (Viết có dấu hoặc không dấu)
+# Mỗi dòng: ĐÁP ÁN | gợi ý | độ khó (1 dễ, 2 vừa, 3 khó) | cách viết khác cũng tính đúng (cách nhau dấu phẩy)
+> Dòng mô tả chủ đề xuất hiện đầu tiết học cho cả lớp xem.
+TRÁI TIM | Con gì đập thì sống, không đập thì chết ngắc. | 1 | TIM
+CÁI BÀN | Có mặt mà không có mắt, có bốn chân mà chẳng biết đi. | 1 | BÀN
+QUẦN ĐẢO | Quần gì rộng lớn bao la nhất, nằm lênh đênh giữa biển khơi? | 2 | ĐẢO
+LÝ THÁI TỔ | Vị vua đặt nền móng dời kinh đô từ Hoa Lư về Thăng Long. | 2 | LÝ CÔNG UẨN
+GÃY TAY | Căn bệnh chấn thương khiến bác sĩ bắt buộc phải bó tay điều trị. | 3 | GÃY CÁNH TAY, BỆNH GÃY TAY
+QUAN TÀI | Người đóng không nằm, người mua không dùng, người dùng chẳng hay biết. | 3 | ÁO QUAN, QUAN QUÁCH
+`;
+
 function RoomSettings() {
   const [cfg, setCfg] = useState<RoomCfg>(GAME.defaultRoom);
   const [name, setName] = useState('');
@@ -22,15 +31,22 @@ function RoomSettings() {
   const [msg, setMsg] = useState('');
   const file = useRef<HTMLInputElement>(null);
   const load = (r: Partial<RoomCfg>) => setCfg({ ...GAME.defaultRoom, ...r });
+
   useEffect(() => {
     fetch('/api/room-settings').then((r) => r.json()).then(load).catch(() => {});
   }, []);
+
   const save = async (patch: Partial<RoomCfg>, done: string) => {
-    const r = await fetch('/api/room-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(patch) }).then((x) => x.json());
+    const r = await fetch('/api/room-settings', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(patch) 
+    }).then((x) => x.json());
     setMsg(r.success ? done : r.error);
     if (r.success) load(r.room);
     return r.success as boolean;
   };
+
   const upload = async (f: File | undefined) => {
     if (!f) return;
     setMsg('Đang tải ảnh lên...');
@@ -41,14 +57,17 @@ function RoomSettings() {
     if (r.success) load(r.room);
     if (file.current) file.current.value = '';
   };
+
   const resetBg = async () => {
     const r = await fetch('/api/room-bg', { method: 'DELETE' }).then((x) => x.json());
     setMsg('Đã về nền gốc');
     load(r.room);
   };
+
   const input = 'min-w-0 flex-1 rounded-lg bg-slate-800 px-2 py-1';
   const row = 'flex items-center gap-1.5';
   const label = 'w-24 shrink-0 text-slate-400';
+
   return (
     <div className="space-y-2 rounded-2xl bg-slate-900 p-3 text-xs ring-1 ring-slate-800">
       <div className="flex justify-between font-semibold text-slate-200">
@@ -63,7 +82,6 @@ function RoomSettings() {
           onChange={(e) => {
             const teacher = e.target.value as RoomCfg['teacher'];
             const patch: Partial<RoomCfg> = { teacher, teacherVoice: teacher === 'thay' ? 'nam' : 'nu' };
-            // tên còn theo người cũ thì đổi luôn tên mặc định
             if (teacher === 'thay' && /^cô(\s|$)/i.test(cfg.teacherName)) patch.teacherName = GAME.defaultThayName;
             if (teacher === 'co' && /^thầy(\s|$)/i.test(cfg.teacherName)) patch.teacherName = GAME.defaultRoom.teacherName;
             save(patch, teacher === 'thay' ? 'Đã đổi sang thầy giáo (giọng nam)' : 'Đã đổi sang cô Ngân');
@@ -171,8 +189,20 @@ export function GameControls({ view, stageCount = 0 }: { view: StageView | null;
   const [sent, setSent] = useState(0);
   const [running, setRunning] = useState(false);
   const [bdName, setBdName] = useState('');
+  const [customText, setCustomText] = useState('');
 
-  /** Giả lập n người xem cùng bình luận trong 20 giây: 15% đúng, 20% đoán sai, còn lại nói chuyện */
+  const downloadSampleTemplate = () => {
+    const blob = new Blob([SAMPLE_TEMPLATE], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'mau-cau-hoi-lop-hoc-chu.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const flood = async (n: number) => {
     if (!view?.answer || running) return;
     setRunning(true);
@@ -187,7 +217,6 @@ export function GameControls({ view, stageCount = 0 }: { view: StageView | null;
         const delay = Math.random() * 20_000;
         return new Promise<void>((ok) =>
           setTimeout(async () => {
-            // TikTok gắn giờ lúc gửi; tới tay bot có thể trễ tới 1,5 giây và lệch thứ tự
             await emitTest('chat', { ...fake(i), comment, createTime: start + delay - Math.random() * 1500 }).catch(() => {});
             setSent(++done);
             ok();
@@ -200,8 +229,15 @@ export function GameControls({ view, stageCount = 0 }: { view: StageView | null;
 
   return (
     <div className="space-y-3">
+      {stageCount === 0 && (
+        <div className="rounded-lg bg-amber-600 p-2.5 text-xs font-semibold text-white">
+          ⚠️ Chưa mở màn hình Live (Stage). Hãy mở link: <code className="bg-black/30 px-1 py-0.5 rounded">/?view=stage</code> trên tab khác hoặc OBS để các nút có hiệu lực!
+        </div>
+      )}
       {stageCount > 1 && <div className="rounded-lg bg-red-600 p-2 text-white">Đang mở {stageCount} trang stage, sẽ có 2 giọng. Đóng bớt đi.</div>}
+      
       <RoomSettings />
+
       {view && (
         <div className="rounded-lg bg-slate-800 p-3 text-sm leading-6">
           <div>
@@ -212,7 +248,6 @@ export function GameControls({ view, stageCount = 0 }: { view: StageView | null;
           </div>
           <div>
             Bot nhận câu này: <b>{view.stats.received}</b> comment · {view.stats.attempts} lượt trả lời · {view.correctCount} đúng
-            {/* để biết vì sao đáp án không được tính: gửi lúc cô còn đọc đề (bỏ, không mất lượt) / gõ không dấu (chưa tính, gõ lại được) */}
             {(view.stats.early ?? 0) > 0 && <span className="text-amber-300"> · {view.stats.early} gửi lúc cô còn đọc</span>}
             {(view.stats.noMarks ?? 0) > 0 && <span className="text-amber-300"> · {view.stats.noMarks} gõ thiếu dấu</span>}
           </div>
@@ -220,11 +255,101 @@ export function GameControls({ view, stageCount = 0 }: { view: StageView | null;
             Đang chơi: <b>{view.players}</b> bạn
             {view.players < GAME.smallRoomPlayers && <span className="text-amber-300"> · phòng vắng: có người đúng là {GAME.smallRoomEndAfterSec} giây sau chốt câu</span>}
           </div>
-          {view.topic && <div>Chủ đề cả lớp chọn: {view.topic}</div>}
+          {view.topic && <div>Chủ đề đang chơi: <b className="text-emerald-400">{view.topic}</b></div>}
           {sent > 0 && <div>Giả lập đã gửi: {sent}</div>}
         </div>
       )}
-      {/* Chủ kênh dùng trong lúc live */}
+
+      {/* 1. KHỐI NHẬP CHỮ TRỰC TIẾP CHO CÔ GIÁO ĐỌC */}
+      <div className="flex flex-wrap items-center gap-2 rounded-xl bg-slate-900 p-2.5 ring-1 ring-slate-800">
+        <span className="text-xs font-semibold text-slate-400">🎤 Cô nói với người xem:</span>
+        <input
+          value={customText}
+          onChange={(e) => setCustomText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && customText.trim()) {
+              sendControl('speak', customText.trim());
+              setCustomText('');
+            }
+          }}
+          placeholder="Nhập câu bạn muốn cô giáo nói..."
+          className="flex-1 min-w-[240px] rounded-lg bg-slate-800 px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-pink-500"
+        />
+        <Btn
+          disabled={!customText.trim()}
+          onClick={() => {
+            if (customText.trim()) {
+              sendControl('speak', customText.trim());
+              setCustomText('');
+            }
+          }}
+        >
+          🗣️ Cô đọc ngay
+        </Btn>
+      </div>
+
+      {/* 2. CỤM CẢM XÚC CÔ GIÁO */}
+      <div className="flex flex-wrap items-center gap-2 rounded-xl bg-slate-900 p-2.5 ring-1 ring-slate-800">
+        <span className="text-xs font-semibold text-slate-400">🎭 Cảm xúc cô giáo:</span>
+        <button
+          onClick={() => sendControl('custom', 'mood:angry')}
+          className="rounded-lg bg-red-800 hover:bg-red-700 px-3 py-1.5 text-xs font-bold text-white shadow transition-all active:scale-95"
+        >
+          ⚡ Tức giận (Sấm sét)
+        </button>
+        <button
+          onClick={() => sendControl('custom', 'mood:happy')}
+          className="rounded-lg bg-pink-600 hover:bg-pink-500 px-3 py-1.5 text-xs font-bold text-white shadow transition-all active:scale-95"
+        >
+          🌸 Vui vẻ (Hoa nở)
+        </button>
+        <button
+          onClick={() => sendControl('custom', 'mood:sad')}
+          className="rounded-lg bg-blue-700 hover:bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow transition-all active:scale-95"
+        >
+          🌧️ Buồn bã (Mưa phùn)
+        </button>
+        <button
+          onClick={() => sendControl('custom', 'mood:none')}
+          className="rounded-lg bg-slate-700 hover:bg-slate-600 px-2.5 py-1.5 text-xs font-bold text-slate-300 shadow transition-all active:scale-95"
+        >
+          🛑 Tắt
+        </button>
+      </div>
+
+      {/* 3. CỤM NÚT ĐIỀU CHỈNH 3 MỨC ĐỘ CÂU HỎI VÀ NÚT TẢI FILE MẪU */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-900 p-2.5 ring-1 ring-slate-800">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-slate-400">🎯 Mức độ câu hỏi:</span>
+          <button
+            onClick={() => sendControl('custom', 'set_diff:1')}
+            className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white shadow transition-all hover:bg-emerald-600 active:scale-95"
+          >
+            🟢 Dễ (Khởi động)
+          </button>
+          <button
+            onClick={() => sendControl('custom', 'set_diff:2')}
+            className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white shadow transition-all hover:bg-amber-500 active:scale-95"
+          >
+            🟡 Vừa (Tăng tốc)
+          </button>
+          <button
+            onClick={() => sendControl('custom', 'set_diff:3')}
+            className="rounded-lg bg-rose-700 px-3 py-1.5 text-xs font-bold text-white shadow transition-all hover:bg-rose-600 active:scale-95"
+          >
+            🔴 Khó (Về đích)
+          </button>
+        </div>
+
+        <button
+          onClick={downloadSampleTemplate}
+          className="flex items-center gap-1.5 rounded-lg bg-cyan-700 px-3 py-1.5 text-xs font-bold text-white shadow transition-all hover:bg-cyan-600 active:scale-95"
+        >
+          📥 Tải file câu hỏi mẫu
+        </button>
+      </div>
+
+      {/* Thao tác live */}
       <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={() => confirm(`Bỏ câu "${view?.answer}"? Câu này sẽ không bao giờ được hỏi lại.`) && sendControl('custom', 'ban')}
@@ -251,6 +376,7 @@ export function GameControls({ view, stageCount = 0 }: { view: StageView | null;
           📊 Báo cáo hôm nay
         </a>
       </div>
+
       <div className="flex flex-wrap gap-2">
         <Btn onClick={() => sendControl('custom', 'skip')}>⏭ Qua phần tiếp</Btn>
         <Btn onClick={() => sendControl('custom', 'newRound')}>🔄 Ván mới</Btn>
@@ -268,7 +394,6 @@ export function GameControls({ view, stageCount = 0 }: { view: StageView | null;
         <Btn onClick={() => sendControl('custom', 'recess:heart')}>❤️ Ra chơi: thả tim</Btn>
         <Btn onClick={() => sendControl('custom', 'recess:dance')}>💃 Ra chơi: nhảy múa thả tim</Btn>
         {(() => {
-          // thầy giám thị chỉ vào được khi có bạn đang ngồi và không phải giờ chọn tổ / game lớn / nhảy múa
           const why = !view
             ? 'chưa mở trang stage'
             : !view.seats.length

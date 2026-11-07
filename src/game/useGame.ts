@@ -12,13 +12,11 @@ import { Classroom, plain, type ClassView, type RecessGame, type Say } from './q
 import type { ShowKind } from './show';
 import { sfx } from './sfx';
 
-// ?view=stage&mute=1: xem thử trang stage không phát tiếng
 const MUTED = new URLSearchParams(window.location.search).get('mute') === '1';
 
 export type WeekRow = { username: string; nickname: string; points: number };
 export type StageView = ClassView & { weekTop: WeekRow[]; todayTop: WeekRow[]; talkTop: WeekRow[]; cfg: RoomCfg };
 
-/** Top 5 hôm nay: điểm server đã lưu + điểm vừa ghi chưa kịp gửi lên (bảng cập nhật ngay, không chờ 20 giây) */
 function dayBoard(saved: WeekRow[], pending: Map<string, { nickname: string; points: number }>): WeekRow[] {
   const all = new Map(saved.map((r) => [r.username, { ...r }]));
   for (const [username, p] of pending) {
@@ -30,10 +28,16 @@ function dayBoard(saved: WeekRow[], pending: Map<string, { nickname: string; poi
   return [...all.values()].sort((a, b) => b.points - a.points).slice(0, 5);
 }
 
-/**
- * Trang stage chạy game thật (lõi ở quiz.ts), đọc/ghi sổ lớp trên server và gửi ảnh chụp trạng thái lên.
- * Trang điều khiển không tự chạy game, chỉ vẽ lại ảnh chụp đó, nên xem trước luôn khớp với live.
- */
+// Hàm gửi tín hiệu cảm xúc tự động tới màn hình Stage
+function triggerAutoMood(mood: 'angry' | 'happy' | 'sad') {
+  if (!IS_STAGE) return;
+  fetch('/api/control', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'custom', text: `mood:${mood}` }),
+  }).catch(() => {});
+}
+
 export function useGame() {
   const [status, setStatus] = useState<LiveStatus | null>(null);
   const [view, setView] = useState<StageView | null>(null);
@@ -42,11 +46,10 @@ export function useGame() {
   const [channelName, setChannelName] = useState(GAME.defaultChannelName);
 
   const roomRef = useRef<Classroom | null>(null);
-  const cfg = useRef<RoomCfg>(GAME.defaultRoom); // cài đặt lớp (trang điều khiển)
+  const cfg = useRef<RoomCfg>(GAME.defaultRoom);
   const applyCfg = (room: Classroom | null) => {
     const c = cfg.current;
     const thay = c.teacher === 'thay';
-    // thầy giáo: giọng nam hết (cả từ tiếng Anh), tên còn để "Cô ..." thì gọi theo tên thầy mặc định
     voice.teacher = thay || c.teacherVoice === 'nam' ? 'm' : 'f';
     if (!room) return;
     room.thay = thay;
@@ -59,25 +62,26 @@ export function useGame() {
     room.showsOn = { everest: cfg.current.everest, chuong: cfg.current.chuong };
   };
   const weekTop = useRef<WeekRow[]>([]);
-  const todayTop = useRef<WeekRow[]>([]); // điểm cả ngày (server), cho bảng Học sinh xuất sắc hôm nay
-  const talkTop = useRef<WeekRow[]>([]); // tương tác cả ngày (server), cho bảng Top tương tác
+  const todayTop = useRef<WeekRow[]>([]);
+  const talkTop = useRef<WeekRow[]>([]);
   const likeBase = useRef<number | null>(null);
   const dirty = useRef(true);
+
+  // Lưu trạng thái trước để phát hiện học sinh bị đứng phạt hoặc câu không ai đúng
+  const prevStandCount = useRef<number>(0);
+  const prevPhase = useRef<string>('');
 
   const [talk] = useState(() => ({
     greeter: new NameBatcher(
       GAME.greetEveryMs,
       GAME.namesPerGreeting,
       (names) => roomRef.current && say([roomRef.current.greet(joinNames(names))]),
-      () => chatter.current.length >= 2, // còn câu nói thêm đang chờ thì gom tên lượt sau
+      () => chatter.current.length >= 2,
     ),
     gifts: new GiftThanker(GAME.giftThanksCooldownMs, GAME.bigGiftCoins),
     follows: new OncePerPerson(),
   }));
 
-  // Nhịp giọng bám chương trình:
-  // - Câu chính (đề, đáp án, tổng kết, ra chơi) đọc ngay; trong lúc cô đọc, đồng hồ phần đó dừng lại.
-  // - Câu nói thêm (chào, cảm ơn, cà khịa) giữ ở đây, chỉ nói khi đang chờ học sinh trả lời và còn hơn 5 giây.
   const mainSpeaking = useRef(0);
   const chatter = useRef<{ text: string; priority: boolean; until: number }[]>([]);
   function say(lines: Say[]) {
@@ -85,14 +89,12 @@ export function useGame() {
     for (const l of lines) {
       if (l.main) {
         mainSpeaking.current++;
-        // câu hô bắt đầu: cô vừa mở miệng hô thì hiện bảng chữ
         const onStart = l.go
           ? () => {
               roomRef.current?.showBoard();
               dirty.current = true;
             }
           : undefined;
-        // chế độ nhanh: đọc xong đề mới hiện bảng chữ, nhận đáp án
         const onDone = l.showAfter
           ? () => {
               mainSpeaking.current--;
@@ -102,7 +104,7 @@ export function useGame() {
           : () => mainSpeaking.current--;
         voice.say(l.text, true, onDone, false, onStart);
       } else if (l.warn) {
-        voice.say(l.text, true); // nhắc sắp hết giờ: chen lên đọc liền, đồng hồ vẫn chạy
+        voice.say(l.text, true);
       } else {
         const ttl = l.ttl ?? (l.priority ? GAME.giftLineMaxWaitMs : GAME.chatterMaxWaitMs);
         chatter.current.push({ text: l.text, priority: !!l.priority, until: now + ttl });
@@ -110,11 +112,10 @@ export function useGame() {
     }
     dirty.current = true;
   }
-  /** Nhả 1 câu nói thêm nếu đang tới lúc (gọi mỗi nhịp game) */
+
   function flushChatter(room: Classroom, now: number) {
     chatter.current = chatter.current.filter((c) => c.until > now);
     if (voice.busy || mainSpeaking.current > 0 || !room.chatterWindow(now)) return;
-    // cảm ơn quà trước; câu thường mỗi phần chỉ nói GAME.chatterPerPhase câu, còn lại chờ phần sau hoặc hết hạn thì bỏ
     const p = chatter.current.findIndex((c) => c.priority);
     const i = p >= 0 ? p : room.chatterAllowed(false) ? 0 : -1;
     if (i < 0) return;
@@ -124,7 +125,6 @@ export function useGame() {
     voice.say(next.text);
   }
 
-  // Tên an toàn để hiện/đọc: tên có từ cấm thì dùng username
   const person = (e: { nickname: string; username: string; avatar: string }) => {
     const nickname = containsBanned(e.nickname) ? e.username : e.nickname;
     return { username: e.username, nickname, spoken: speakableName(nickname), avatar: e.avatar };
@@ -147,12 +147,45 @@ export function useGame() {
       if (!room) return;
       const p = person(e);
       const isNew = !room.students.has(e.username);
-      // realTime: có giờ TikTok thật (server gửi createTime) thì mới dùng để đo độ lệch đồng hồ
-      say(room.chat({ ...p, comment: e.comment, createTime: e.createTime ?? e.timestamp, realTime: e.createTime != null && !e.test, safe: !containsBanned(e.comment) }, Date.now()));
-      if (isNew && p.spoken !== 'bạn' && GAME.joinKeywords.includes(plain(e.comment))) talk.greeter.add(e.username, p.spoken);
-      // chuyên cần: lần đầu bình luận trong buổi thì báo server, server trả về số ngày đi học liền
+
+      // 1. Nhận câu trả lời và tính điểm game
+      say(room.chat({ 
+        ...p, 
+        comment: e.comment, 
+        createTime: e.createTime ?? e.timestamp, 
+        realTime: e.createTime != null && !e.test, 
+        safe: !containsBanned(e.comment) 
+      }, Date.now()));
+
+      if (isNew && p.spoken !== 'bạn' && GAME.joinKeywords.includes(plain(e.comment))) {
+        talk.greeter.add(e.username, p.spoken);
+      }
+
+      // 2. Cô giáo phản hồi bình luận giao lưu
+      const c = e.comment.toLowerCase().trim();
+      const name = p.spoken;
+      let reply = '';
+      if (c.includes('chào cô') || c.includes('chào thầy') || c === 'hi cô' || c === 'hello cô') {
+        reply = `Cô chào ${name} nha, mau chọn chỗ ngồi để thi đố chữ với cả lớp nào!`;
+      } else if (c.includes('cô xinh') || c.includes('cô đẹp') || c.includes('dễ thương')) {
+        reply = `Cảm ơn ${name} đã khen cô nhé, khen cô là cô cộng điểm liền nha!`;
+      } else if (c.includes('khó quá') || c.includes('khó thế')) {
+        reply = `${name} bình tĩnh đọc kỹ gợi ý chút xíu là đoán ra ngay thôi mà!`;
+      } else if (c.includes('người yêu') || c.includes('có bồ chưa')) {
+        reply = `Cô chỉ dành tình yêu thương cho lớp học và các bạn học sinh thôi nha ${name}!`;
+      } else if (c.includes('mấy tuổi') || c.includes('bao nhiêu tuổi')) {
+        reply = `Bí mật nha ${name}, tuổi của cô giáo lúc nào cũng mãi mãi tuổi đôi mươi!`;
+      }
+      if (reply) {
+        say([{ text: reply, priority: false, ttl: 15_000 }]);
+      }
+
       if (isNew && IS_STAGE) {
-        fetch('/api/game/attend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: e.username, nickname: p.nickname }) })
+        fetch('/api/game/attend', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ username: e.username, nickname: p.nickname }) 
+        })
           .then((r) => r.json())
           .then((d) => roomRef.current && say(roomRef.current.attendance(p, Number(d.days) || 0, Date.now(), d.life)))
           .catch(() => {});
@@ -166,8 +199,13 @@ export function useGame() {
       const coins = e.diamondCount * e.repeatCount;
       setLastGift({ ...e, nickname: p.nickname, at: Date.now() });
       const hint = room.gift(p, coins, Date.now(), e.repeatCount, e.giftName);
-      say(hint); // bạn nhỏ lên bục đưa hoa: cô cảm ơn ngay, quà đạt mốc quỹ hoa: cô cảm ơn cả lớp
-      // combo / tặng liên tục chỉ cảm ơn 1 lần mỗi 30 giây; quà to luôn cảm ơn
+      say(hint);
+
+      // TỰ ĐỘNG HÓA 1: Tặng hoa / quà to -> Kích hoạt hoa nở vui vẻ
+      if (coins >= 10 || e.giftName.toLowerCase().includes('hoa')) {
+        triggerAutoMood('happy');
+      }
+
       if (!hint.length && talk.gifts.shouldThank(e.username, coins, chatter.current.filter((c) => c.priority).length)) say([room.thank(p, e.giftName, coins)]);
     },
 
@@ -180,9 +218,12 @@ export function useGame() {
       const room = roomRef.current;
       if (!room) return;
       if (likeBase.current === null) likeBase.current = e.totalLikes - e.likeCount;
-      // tim thật x GAME.heartBoost: đủ 300 tim (60 tim thật) là cả lớp vỗ tay
       const reached = (e.totalLikes - likeBase.current) * GAME.heartBoost >= GAME.likesPerClap;
-      if (reached) likeBase.current = e.totalLikes;
+      if (reached) {
+        likeBase.current = e.totalLikes;
+        // TỰ ĐỘNG HÓA 2: Đủ mốc tim cả lớp vỗ tay -> Kích hoạt hoa nở
+        triggerAutoMood('happy');
+      }
       say(room.like(e.likeCount, Date.now(), reached, person({ ...e, avatar: '' })));
     },
 
@@ -190,6 +231,7 @@ export function useGame() {
       if (c.action === 'setName' && c.text) setChannelName(c.text);
       const room = roomRef.current;
       if (!room) return;
+      
       if (c.action === 'speak' && c.text) voice.say(c.text, true);
       if (c.action === 'setRate' && c.text) voice.rate = Number(c.text) || 1;
       if (c.action === 'reset' || (c.action === 'custom' && c.text === 'newRound')) {
@@ -199,20 +241,50 @@ export function useGame() {
       }
       if (c.action === 'custom' && c.text === 'skip') say(room.skip(Date.now()));
       if (c.action === 'custom' && c.text === 'ban') say(room.banCurrent(Date.now()));
-      // chủ kênh tự bấm chúc sinh nhật: tên trùng bạn đang trong lớp thì bánh kem đặt lên bàn bạn đó
       if (c.action === 'custom' && c.text?.startsWith('birthday:')) {
         const name = c.text.slice(9).trim().slice(0, 40);
         const s = [...room.students.values()].find((x) => x.nickname.toLowerCase() === name.toLowerCase());
         if (name) say(room.celebrate(s ?? person({ username: `kenh:${name}`, nickname: name, avatar: '' }), Date.now()));
       }
       if (c.action === 'custom' && c.text === 'goodbye') say(room.goodbye(Date.now()));
-      if (c.action === 'custom' && c.text === 'escort') say(room.forceEscort(Date.now()));
+      if (c.action === 'custom' && c.text === 'escort') {
+        triggerAutoMood('angry');
+        say(room.forceEscort(Date.now()));
+      }
       if (c.action === 'custom' && c.text?.startsWith('recess:')) say(room.forceRecess(c.text.slice(7) as RecessGame, Date.now()));
       if (c.action === 'custom' && c.text?.startsWith('show:')) say(room.forceShow(c.text.slice(5) as ShowKind, Date.now()));
+
+      // Ép chuyển độ khó
+      if (c.action === 'custom' && c.text?.startsWith('set_diff:')) {
+        const targetDiff = parseInt(c.text.replace('set_diff:', ''), 10);
+        const r = room as any;
+        
+        if (r.topics && Array.isArray(r.topics)) {
+          const matchIdx = r.topics.findIndex((t: any) => {
+            if (t.questions && Array.isArray(t.questions)) {
+              return t.questions.some((q: any) => q.diff === targetDiff || q.difficulty === targetDiff);
+            }
+            const name = (t.name || '').toLowerCase();
+            if (targetDiff === 1) return name.includes('dễ') || name.includes('35');
+            if (targetDiff === 2) return name.includes('vừa') || name.includes('36');
+            if (targetDiff === 3) return name.includes('khó') || name.includes('37');
+            return false;
+          });
+
+          if (matchIdx >= 0) {
+            r.topicIndex = matchIdx;
+          }
+        }
+
+        voice.stop();
+        chatter.current = [];
+        r.phase = 'team';
+        dirty.current = true;
+        say(room.newRound(Date.now()));
+      }
     },
   });
 
-  // Mở trang stage: đọc sổ lớp (câu đã hỏi, bảng vàng tuần) rồi mới vào học
   useEffect(() => {
     if (!IS_STAGE) return;
     if (MUTED) {
@@ -247,7 +319,7 @@ export function useGame() {
         if (typeof d.flowersToday === 'number') roomRef.current?.setFlowersSaved(d.flowersToday);
         room.weekLeader = weekTop.current[0] ? speakableName(weekTop.current[0].nickname) : '';
       } catch {
-        room.usedLog.unshift(...used); // server tắt: giữ lại, lần sau gửi
+        room.usedLog.unshift(...used);
         for (const w of week) room.weekDelta.set(w.username, w);
         room.banLog.unshift(...banned);
         room.reportLog.unshift(...report);
@@ -268,18 +340,14 @@ export function useGame() {
         weekTop.current = d.weekTop ?? [];
         todayTop.current = d.todayTop ?? [];
         talkTop.current = d.talkTop ?? [];
-        flowersSaved = Number(d.flowersToday) || 0; // quỹ hoa hôm nay (mở lại trang không mất)
-      } catch {
-        // server cũ chưa có sổ: chơi bình thường, chỉ không nhớ câu đã hỏi
-      }
-      // cài đặt lớp (tên cô, thầy giáo, giám thị...) đọc TRƯỚC khi vào học: trước đây câu đầu buổi còn đọc tên mặc định "cô Ngân"
-      // vì cài đặt từ server tới sau (sửa 2026-11-07)
+        flowersSaved = Number(d.flowersToday) || 0;
+      } catch {}
+
       try {
         const rc = await (await fetch('/api/room-settings')).json();
         cfg.current = { ...GAME.defaultRoom, ...rc };
-      } catch {
-        // server cũ: dùng cài đặt mặc định, khi server gửi cài đặt thì đổi sau
-      }
+      } catch {}
+
       if (stop) return;
       const room = new Classroom(QUESTIONS, Date.now(), Math.random, used, banned);
       room.setFlowersSaved(flowersSaved);
@@ -289,13 +357,11 @@ export function useGame() {
       applyCfg(room);
       say(room.newRound(Date.now()));
 
-      // Nhịp game: 5 lần/giây đẩy đồng hồ, có đổi thì vẽ lại và gửi ảnh chụp cho trang điều khiển
       let lastSent = 0;
       let lastTick = Date.now();
       timers.push(
         setInterval(() => {
           const now = Date.now();
-          // cô đang đọc câu chính: dừng đồng hồ (vd đọc đề xong mới đếm 20 giây)
           if (mainSpeaking.current > 0) {
             room.hold(now - lastTick);
             dirty.current = true;
@@ -303,16 +369,31 @@ export function useGame() {
           lastTick = now;
           say(room.tick(now));
           flushChatter(room, now);
-          // game lớn: tích tắc 5 giây cuối như câu hỏi tiết học
           sfx.clock(room.showAsking() ? 'question' : room.phase, room.boardShown, room.phaseEndsAt, now);
-          // nhạc nền EDM game lớn: cô đang đọc thì nhạc lùi xa cho rõ giọng; chờ trả lời thì sập sình, 5 giây cuối dồn dập
           const sh = room.show;
           const step = sh?.steps[sh.i]?.k;
           const busy = mainSpeaking.current > 0;
-          // giờ ra chơi nhảy múa: nhạc nhảy, cô nói thì lùi xa
           const dancing = room.phase === 'recess' && room.recess?.game === 'dance' && room.recess.stage === 'play';
           if (dancing) sfx.music('nhay', busy ? 0 : room.phaseEndsAt - now <= 5000 ? 2 : 1);
           else sfx.music(sh?.kind ?? null, !sh || busy ? 0 : room.showAsking() ? (room.phaseEndsAt - now <= 5000 ? 2 : 1) : step === 'gather' || step === 'honor' ? 1 : 0);
+
+          // TỰ ĐỘNG HÓA 3: Giám sát diễn biến để đổi cảm xúc
+          // - Khi có bạn mới bị phạt lên bục đứng -> Sấm sét
+          const curStand = (room as any).standUsers?.length ?? 0;
+          if (curStand > prevStandCount.current) {
+            triggerAutoMood('angry');
+          }
+          prevStandCount.current = curStand;
+
+          // - Khi hết giờ chuyển sang hiện đáp án ('reveal') mà 0 ai đoán đúng -> Mưa phùn buồn bã
+          if (room.phase === 'reveal' && prevPhase.current !== 'reveal') {
+            const correctCount = (room as any).roundCorrect ?? 0;
+            if (correctCount === 0) {
+              triggerAutoMood('sad');
+            }
+          }
+          prevPhase.current = room.phase;
+
           if (!dirty.current && now - lastSent < 1000) return;
           dirty.current = false;
           const v = { ...room.view(now), cfg: cfg.current, weekTop: weekTop.current, todayTop: dayBoard(todayTop.current, room.weekDelta), talkTop: dayBoard(talkTop.current, room.talkDelta) };
@@ -342,7 +423,6 @@ export function useGame() {
 
 export type GameState = ReturnType<typeof useGame>;
 
-// ['An', 'Bình', 'Chi'] -> 'bạn An, bạn Bình và bạn Chi'
 function joinNames(names: string[]) {
   const spoken = names.map((n) => `bạn ${n}`);
   return spoken.length > 1 ? `${spoken.slice(0, -1).join(', ')} và ${spoken[spoken.length - 1]}` : spoken[0] ?? '';

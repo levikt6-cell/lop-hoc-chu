@@ -11,9 +11,18 @@ body,
   height: 100%;
 }
 
-/* Nền stage. Đổi ảnh: bỏ ảnh vào public/assets/bg/ rồi thay dòng background */
+/* Khử nhòe, chống vỡ hạt khi chiếu lên LIVE Studio / OBS */
+#root, 
+canvas, 
 .stage-bg {
-  background: #c8642a url('/assets/bg/lop.webp?v=goc') top center / 1080px auto no-repeat;
+  image-rendering: -webkit-optimize-contrast;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Nền stage */
+.stage-bg {
+  background: #c8642a url('/assets/bg/nen-1794001546704.jpg') top center / 1080px auto no-repeat;
 }
 
 /* Hiệu ứng khi đủ tim */
@@ -27,4 +36,63 @@ body,
   to {
     box-shadow: inset 0 0 220px 40px rgba(236, 72, 153, 0.55);
   }
+}
+
+/* ========================================================= */
+/* HIỆU ỨNG CẢM XÚC CÔ GIÁO: SẤM SÉT - HOA NỞ - MƯA PHÙN     */
+/* ========================================================= */
+
+/* 1. Sấm sét khi tức giận */
+.effect-angry-lightning {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  animation: lightning-flash 2.5s ease-in-out infinite;
+}
+
+@keyframes lightning-flash {
+  0%, 100% { background: rgba(0, 0, 0, 0); }
+  5% { background: rgba(255, 255, 255, 0.85); }
+  8% { background: rgba(0, 0, 0, 0.4); }
+  10% { background: rgba(255, 255, 255, 0.95); }
+  12% { background: rgba(220, 38, 38, 0.35); }
+  30% { background: rgba(0, 0, 0, 0); }
+}
+
+/* 2. Hoa nở rơi rụng khi vui vẻ */
+.effect-happy-flowers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  background-image: radial-gradient(circle, #f472b6 20%, transparent 20%),
+                    radial-gradient(circle, #facc15 20%, transparent 20%),
+                    radial-gradient(circle, #fb7185 20%, transparent 20%);
+  background-size: 60px 60px, 90px 90px, 120px 120px;
+  background-position: 0 0, 40px 60px, 130px 270px;
+  animation: flower-fall 6s linear infinite;
+}
+
+@keyframes flower-fall {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+  20% { opacity: 0.9; }
+  80% { opacity: 0.9; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+/* 3. Mưa phùn khi buồn bã */
+.effect-sad-rain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  background: linear-gradient(to bottom, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6)),
+              repeating-linear-gradient(transparent, transparent 15px, rgba(148, 163, 184, 0.35) 15px, rgba(148, 163, 184, 0.35) 30px);
+  animation: rain-fall 0.6s linear infinite;
+}
+
+@keyframes rain-fall {
+  0% { background-position: 0 0; }
+  100% { background-position: 10px 60px; }
 }

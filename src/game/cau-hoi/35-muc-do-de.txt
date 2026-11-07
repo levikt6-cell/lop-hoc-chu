@@ -1,0 +1,53 @@
+# Khởi động - Mức dễ
+# Mỗi dòng: ĐÁP ÁN | gợi ý | độ khó (1 dễ, 2 vừa, 3 khó) | cách viết khác cũng tính đúng (cách nhau dấu phẩy)
+> Câu hỏi mức độ dễ dành cho cả lớp.
+TRÁI TIM | Con gì đập thì sống, không đập thì chết ngắc. | 1 | TIM
+100 | 54 cộng 46 bằng bao nhiêu? | 1 | MỘT TRĂM
+LƯỜI BIẾNG | Từ trái nghĩa với chăm chỉ, ai cũng thích nhưng sợ cô mắng. | 1 | LƯỜI, LƯỜI NHÁC
+FLOWER | Bông hoa trong tiếng Anh viết như thế nào? | 1 | HOA
+CÁI BÀN | Có mặt mà không có mắt, có bốn chân mà chẳng biết đi. | 1 | BÀN
+TOKYO | Thủ đô sầm uất ngập tràn hoa anh đào của nước Nhật Bản. | 1 | TÔ KY Ô
+LỊCH SỬ | Cuốn lịch dài nhất hành tinh, học sinh đọc hoài không hết. | 1 | LỊCH
+56 | 7 nhân 8 bằng mấy, câu hỏi bảng cửu chương quen thuộc. | 1 | NĂM MƯƠI SÁU
+SCHOOL | Trường học thân yêu trong tiếng Anh viết là gì? | 1 | TRƯỜNG HỌC
+CON DÊ | Sinh ra trên đời đã có sẵn chùm râu dưới cằm. | 1 | DÊ
+65 | 100 trừ đi 35 thì còn lại bao nhiêu? | 1 | SÁU MƯƠI LĂM
+HƯỚNG ĐÔNG | Hướng mặt trời mọc vào mỗi buổi sớm mai. | 1 | PHÍA ĐÔNG, ĐÔNG
+CHIM CÁNH CỤT | Có cánh mà chẳng biết bay, lạch bạch sống nơi băng giá Nam Cực. | 1 | CÁNH CỤT
+CAT | Con mèo máy Doraemon sợ chuột, tiếng Anh viết là gì? | 1 | CON MÈO
+81 | 9 nhân 9 bằng bao nhiêu trong bảng cửu chương? | 1 | TÁM MƯƠI MỐT
+QUẢ CHUỐI | Vỏ vàng cong cong, ngọt lịm thơm ngon, loài khỉ mê tít. | 1 | CHUỐI, TRÁI CHUỐI
+0 ĐỘ | Nước bắt đầu đóng thành tảng băng ở nhiệt độ nào? | 1 | 0 ĐỘ C, KHÔNG ĐỘ
+CẦU THANG | Suốt ngày dẫn người đi lên đi xuống mà thân mình đứng yên. | 1 | THANG
+RED | Màu cờ đỏ sao vàng, trong tiếng Anh viết là gì? | 1 | MÀU ĐỎ
+365 | Một năm dương lịch bình thường có bao nhiêu ngày? | 1 | 365 NGÀY
+3 | Hình tam giác có bao nhiêu cạnh? | 1 | BA CẠNH, 3 CẠNH
+CON HỔ | Chúa tể của muôn loài trong rừng sâu thẳm. | 1 | HỔ, CỌP, CON CỌP
+THÁNG 2 | Tháng ngắn ngủi nhất năm, chỉ có 28 hoặc 29 ngày. | 1 | THÁNG HAI
+BOOK | Cuốn sách giáo khoa mang tri thức, tiếng Anh viết là gì? | 1 | SÁCH, CUỐN SÁCH
+60 | Một giờ đồng hồ trôi qua có bao nhiêu phút? | 1 | 60 PHÚT, SÁU MƯƠI
+CON RÙA | Đi đứng chậm chạp nhất trần đời, cõng cả ngôi nhà trên lưng. | 1 | RÙA
+MÀU ĐỎ | Đèn giao thông bật màu này thì phải dừng xe lại ngay. | 1 | ĐỎ
+50 | 200 chia làm 4 phần bằng nhau thì mỗi phần được mấy? | 1 | NĂM MƯƠI
+CÁI ĐẦU | Cầu thủ bóng đá dùng bộ phận nào trên cơ thể để đánh đầu ghi bàn? | 1 | ĐẦU
+APPLE | Quả táo ngọt ngào trong tiếng Anh viết thế nào? | 1 | QUẢ TÁO, TÁO
+THAN | Mua màu đen, dùng biến thành đỏ, tàn thành tro màu xám xịt. | 1 | HÒN THAN, THAN CỦI
+50 | 12 cộng 38 thì bằng bao nhiêu? | 1 | NĂM MƯƠI
+MÀU VÀNG | Ngôi sao năm cánh trên lá quốc kỳ Việt Nam có màu gì? | 1 | VÀNG
+GÀ TRỐNG | Cất tiếng gáy ò ó o gọi cả làng thức giấc mỗi sáng. | 1 | CON GÀ TRỐNG
+PEN | Cây bút mực chấm điểm mười, tiếng Anh viết là gì? | 1 | CÂY BÚT, CÁI BÚT
+24 | Một ngày đêm quay trọn vẹn bao nhiêu giờ đồng hồ? | 1 | 24 GIỜ, HAI MƯƠI BỐN
+2 | Xe máy, xe đạp bình thường có bao nhiêu bánh lăn trên đường? | 1 | HAI BÁNH, 2 BÁNH
+BỒ CÂU | Loài chim tung cánh ngậm cành ô liu tượng trưng cho hòa bình. | 1 | CHIM BỒ CÂU
+DOG | Chú cún trung thành giữ nhà, tiếng Anh viết là gì? | 1 | CON CHÓ, CÚN
+100 | 45 cộng 55 ra tròn bao nhiêu? | 1 | MỘT TRĂM
+THẤP | Từ trái nghĩa hoàn toàn với từ cao lớn. | 1 | LÙN
+CON THỎ | Mắt đỏ lông trắng tai dài đuôi ngắn thích ăn củ cà rốt. | 1 | THỎ
+MÀU TÍM | Sắc màu nằm ở dải cuối cùng của dải cầu vồng bảy sắc. | 1 | TÍM
+SUN | Ông mặt trời tỏa nắng ban mai rực rỡ, tiếng Anh gọi là gì? | 1 | MẶT TRỜI
+48 | 8 nhân với 6 thì bằng bao nhiêu? | 1 | BỐN MƯƠI TÁM
+5 | Con người có tổng cộng bao nhiêu giác quan chính? | 1 | NĂM GIÁC QUAN, 5 GIÁC QUAN
+5 | Một bàn tay bình thường có bao nhiêu ngón? | 1 | 5 NGÓN, NĂM NGÓN
+CON TẰM | Loài sâu bọ chăm chỉ ăn lá dâu nhả tơ dệt kén. | 1 | TẰM
+30 | 15 cộng thêm 15 thì bằng bao nhiêu? | 1 | BA MƯƠI
+MOON | Chị Hằng cùng ánh trăng sáng ban đêm, tiếng Anh gọi là gì? | 1 | MẶT TRĂNG, ÁNH TRĂNG
